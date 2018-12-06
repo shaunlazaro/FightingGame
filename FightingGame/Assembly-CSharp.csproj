@@ -51,8 +51,13 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Input\Action.cs" />
+     <Compile Include="Assets\Scripts\Input\Characters\TestInput.cs" />
+     <Compile Include="Assets\Scripts\Input\InputManager.cs" />
      <Compile Include="Assets\Scripts\Input\SpecialInput.cs" />
-     <Compile Include="Assets\Scripts\Input\TestInput.cs" />
+     <Compile Include="Assets\Scripts\Manager.cs" />
+     <Compile Include="Assets\Scripts\Menu\ControllerMappingMenuManager.cs" />
+     <Compile Include="Assets\TitleScreenController.cs" />
      <None Include="Assets\Art\Fonts\Oswald\OFL.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>

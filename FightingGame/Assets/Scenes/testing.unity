@@ -509,7 +509,7 @@ RectTransform:
   m_GameObject: {fileID: 192531321}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.75, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 113822060}
   m_RootOrder: 0
@@ -575,6 +575,7 @@ GameObject:
   - component: {fileID: 250285599}
   - component: {fileID: 250285598}
   - component: {fileID: 250285601}
+  - component: {fileID: 250285602}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -641,8 +642,24 @@ MonoBehaviour:
   specialAttackInput:
   - down
   - right
-  - HighKick
+  - HighPunch
   controllerNumber: 1
+--- !u!114 &250285602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 250285597}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a0c9e8b98cb77e4daef9f8161ec2946, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  specialAttackInput:
+  - down
+  - right
+  - HighKick
+  controllerNumber: 2
 --- !u!1 &316574215
 GameObject:
   m_ObjectHideFlags: 0
@@ -1494,7 +1511,7 @@ RectTransform:
   m_GameObject: {fileID: 1598653806}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.7, y: 1, z: 1}
+  m_LocalScale: {x: 0.95, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 316574216}
   m_RootOrder: 0
