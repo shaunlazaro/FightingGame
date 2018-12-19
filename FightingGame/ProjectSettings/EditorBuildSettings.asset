@@ -9,8 +9,14 @@ EditorBuildSettings:
     path: Assets/Scenes/Title.unity
     guid: 08c70cc6b77ae784ab177e05f7ca7e07
   - enabled: 1
-    path: Assets/Scenes/Controller1Assignment.unity
+    path: Assets/Scenes/ControllerAssignment.unity
     guid: 58d638e0eef5b7b43b75173e3f42561b
   - enabled: 1
     path: Assets/Scenes/testing.unity
     guid: ba14fbe1b44477048b377eb2c961241b
+  - enabled: 1
+    path: Assets/Scenes/CharacterSelect.unity
+    guid: d227768d66db8ec4d879c80e02c4bb2a
+  - enabled: 1
+    path: Assets/Scenes/InstructionDisplay.unity
+    guid: 70aad4f655943434288ebc96da29fa91

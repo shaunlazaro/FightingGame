@@ -166,6 +166,7 @@ public class ControllerMappingMenuManager : MonoBehaviour {
                         StartCoroutine(Progression());
                     }
                 }
+
             }
         }
         

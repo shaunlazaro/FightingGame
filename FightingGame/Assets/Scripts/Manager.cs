@@ -9,6 +9,9 @@ public class Manager : MonoBehaviour {
 
     public InputManager[] input = new InputManager[2];
 
+    public float[] maxHP = new float[2]; // 0 is 1, 1 is 2
+    public float[] currentHP = new float[2]; // 0 is 1, 1 is 2
+
     // Singleton Code
     void Awake()
     {
@@ -22,9 +25,17 @@ public class Manager : MonoBehaviour {
 
     void Start()
     {
-
         input[0] = new InputManager();
         input[1] = new InputManager();
+
+        maxHP[0] = 100;
+        maxHP[1] = 100;
+        }
+
+    public void ResetNumbers()
+    {
+        currentHP[0] = maxHP[0];
+        currentHP[1] = maxHP[1];
     }
 }
 

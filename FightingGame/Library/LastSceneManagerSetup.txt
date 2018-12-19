@@ -1,4 +1,4 @@
 sceneSetups:
-- path: Assets/Scenes/Controller1Assignment.unity
+- path: Assets/Scenes/ControllerAssignment.unity
   isLoaded: 1
   isActive: 1
