@@ -8,7 +8,7 @@ public class Action{
 
     // Only used in an axis
     public bool isAxis = false;
-    public int axisTargetValue;
+    public float axisTargetValue;
 
     // Button constructor
     public Action(string rawInput)
@@ -21,16 +21,18 @@ public class Action{
         input = rawInput;
         isAxis = true;
         if (negativeAxis)
-            axisTargetValue = -1;
+            axisTargetValue = -0.5f;
         else
-            axisTargetValue = 1;
+            axisTargetValue = 0.5f;
     }
     
 
     public bool Check()
     {
-        if (isAxis)
-            return Input.GetAxisRaw(input) == axisTargetValue;
+        if (isAxis && axisTargetValue > 0)
+            return Input.GetAxisRaw(input) >= axisTargetValue;
+        if (isAxis && axisTargetValue < 0)
+            return Input.GetAxisRaw(input) <= axisTargetValue;
         return Input.GetKeyDown(input);
     }
 }

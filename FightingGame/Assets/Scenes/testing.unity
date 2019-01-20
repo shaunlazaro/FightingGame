@@ -947,9 +947,9 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 396929220}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 4, y: 0, z: 0}
+  m_LocalScale: {x: -1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1485085796}
   m_RootOrder: 0
@@ -965,6 +965,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f035ce014b4924c821cac15d534ad1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackDamage: 0
+  attackStun: 0
+  velocity: 0
 --- !u!61 &396929223
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2414,7 +2417,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerNum: 1
-  inAttack: 0
   forwardSpeed: 6
   backwardSpeed: -3
   jumpPower: 10
@@ -2600,7 +2602,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerNum: 2
-  inAttack: 0
   forwardSpeed: 6
   backwardSpeed: -3
   jumpPower: 10
@@ -4096,6 +4097,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35f035ce014b4924c821cac15d534ad1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  attackDamage: 0
+  attackStun: 0
+  velocity: 0
 --- !u!1 &2064420637
 GameObject:
   m_ObjectHideFlags: 0
