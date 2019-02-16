@@ -16,6 +16,7 @@ public class TestAnimInput : MonoBehaviour
 
     private Rigidbody2D body;
     private Manager manager = Manager.instance;
+    public BoxCollider2D ground;
 
     public float forwardSpeed;
     public float backwardSpeed;
@@ -39,11 +40,15 @@ public class TestAnimInput : MonoBehaviour
         set { anim.SetBool("BlockHurt", value); }
         get { return anim.GetBool("BlockHurt"); }
     }
+    bool CrouchingState
+    {
+        set { anim.SetBool("Crouch", value); }
+        get { return anim.GetBool("Crouch"); }
+    }
     int stunFrames = 0;
     int blockStunFrames = 0;
 
     public GameObject opponent;
-    public float distToGround;
 
     // Use this for initialization
     void Start()
@@ -51,8 +56,6 @@ public class TestAnimInput : MonoBehaviour
         input = Manager.instance.input[playerNum - 1];
         anim = gameObject.GetComponent<Animator>();
         body = gameObject.GetComponent<Rigidbody2D>();
-
-        distToGround = gameObject.GetComponent<BoxCollider2D>().bounds.extents.y;
     }
 
     // Update is called once per frame
@@ -102,8 +105,12 @@ public class TestAnimInput : MonoBehaviour
 
         if (input.GetButtonDown("down"))
         {
-            Debug.Log("Crouched");
             body.velocity = Vector2.zero;
+            CrouchingState = true;
+        }
+        else
+        {
+            CrouchingState = false;
         }
         if (Blocking())
         {
@@ -128,7 +135,7 @@ public class TestAnimInput : MonoBehaviour
         }
         
         if (!input.GetButtonDown("right") && !input.GetButtonDown("left"))
-            body.velocity = Vector2.zero;
+            body.velocity = new Vector2(0, body.velocity.y);
     }
     void AirUpdate()
     {
@@ -144,26 +151,31 @@ public class TestAnimInput : MonoBehaviour
 
     public bool Inverted()
     {
+
         // If opponent is to the left, then inverted
-        if (opponent.transform.position.x < gameObject.transform.position.x)
+        if (opponent.GetComponent<Renderer>().bounds.center.x < gameObject.GetComponent<Renderer>().bounds.center.x)
             return true;
         return false;
     }
 
     public bool IsGrounded()
     {
-        return Physics2D.Raycast(transform.position, -Vector2.up, distToGround + 0.25f);
+
+        return this.GetComponent<BoxCollider2D>().IsTouching(ground);
     }
 
     // AttackHit should be called by script on the attack hitbox
     // This is called when you hit someone
     public void AttackHit(Collider2D collision, int attackDamage, int attackStun, int blockStun, float hurtVelocity)
     {
-        Debug.Log("Hit " + collision.gameObject.name + this.gameObject.name);
+        Debug.Log(this.gameObject.name + "Hit" + collision.gameObject.name);
 
         // Blocked
+        Debug.Log(collision.name);
         if (collision.GetComponent<TestAnimInput>().anim.GetCurrentAnimatorStateInfo(0).IsName("Block") ||
-            collision.GetComponent<TestAnimInput>().anim.GetCurrentAnimatorStateInfo(0).IsName("BlockHurt"))
+            collision.GetComponent<TestAnimInput>().anim.GetCurrentAnimatorStateInfo(0).IsName("BlockHurt") ||
+            collision.GetComponent<TestAnimInput>().anim.GetCurrentAnimatorStateInfo(0).IsName("CrouchBlock") ||
+            collision.GetComponent<TestAnimInput>().anim.GetCurrentAnimatorStateInfo(0).IsName("CrouchBlockHurt"))
         {
             collision.GetComponent<TestAnimInput>().BlockHurt(blockStun, 0);
         }
