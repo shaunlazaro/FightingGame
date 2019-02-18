@@ -12,6 +12,8 @@ public class AttackCollider : MonoBehaviour {
     public int hitStopFrames;
     public int counter;
 
+    public bool projectile = false; // If true, the gameobject will self destruct after hitstop ends.
+
     public GameObject particlePoint;
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -19,17 +21,27 @@ public class AttackCollider : MonoBehaviour {
         if (collision.gameObject.name.Contains("Player")) { 
             Time.timeScale = 0;
 
-            gameObject.GetComponentInParent<TestAnimInput>().AttackHit(collision, attackDamage, attackStun, blockStun, velocity);
+            collision.GetComponentInParent<TestAnimInput>().AttackHit(attackDamage, attackStun, blockStun, velocity);
             GameObject.Find("EventSystem").GetComponent<HitEffect>().SpawnEffect(3, particlePoint.transform.position);
 
             counter = hitStopFrames;
+        }
+        if(collision.gameObject.name.Contains("Border"))
+        {
+            if(projectile)
+                Destroy(gameObject);
         }
     }
     
     void Update()
     {
-        if (Time.timeScale == 0 && counter == 0) Time.timeScale = 1;
+        if (Time.timeScale == 0 && counter == 0)
+        {
+            Time.timeScale = 1;
+            if (projectile) Destroy(gameObject);
+        }
         else counter--;
+
 
     }
 }

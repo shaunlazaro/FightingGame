@@ -11,8 +11,8 @@ public class SpecialInput{
     private float timeLastButtonPressed;
 
     private int stickNum = 1;
-    // 0: Keyboard
-    // 1,2,3...: Joystick Numbers
+    // 1: Player 1?
+    // 2: Player 2?
 
     
 

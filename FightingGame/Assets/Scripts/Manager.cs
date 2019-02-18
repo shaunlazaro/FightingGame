@@ -30,7 +30,7 @@ public class Manager : MonoBehaviour {
 
         maxHP[0] = 100;
         maxHP[1] = 100;
-        }
+    }
 
     public void ResetNumbers()
     {

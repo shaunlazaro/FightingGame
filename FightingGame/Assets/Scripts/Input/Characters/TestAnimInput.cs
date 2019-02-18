@@ -8,6 +8,7 @@ public class TestAnimInput : MonoBehaviour
     public int playerNum;
     private InputManager input;
     private Animator anim;
+
     public Animator Anim
     {
         get { return anim; }
@@ -24,6 +25,16 @@ public class TestAnimInput : MonoBehaviour
 
     public bool doubleJumpReady;
     public bool justJumped = false;
+
+    public string LowPunch;
+    public string HighPunch;
+    public string LowKick;
+    public string HighKick;
+    public string FireBallAttack;
+
+    public SpecialInput FireBall;
+    public SpecialInput FireBallInverted;
+
 
     bool HurtingState
     {
@@ -45,6 +56,11 @@ public class TestAnimInput : MonoBehaviour
         set { anim.SetBool("Crouch", value); }
         get { return anim.GetBool("Crouch"); }
     }
+    bool InAirState
+    {
+        set { anim.SetBool("InAir", value); }
+        get { return anim.GetBool("InAir"); }
+    }
     int stunFrames = 0;
     int blockStunFrames = 0;
 
@@ -56,6 +72,11 @@ public class TestAnimInput : MonoBehaviour
         input = Manager.instance.input[playerNum - 1];
         anim = gameObject.GetComponent<Animator>();
         body = gameObject.GetComponent<Rigidbody2D>();
+
+        string[] fireBallMotion = new string[] { "down", "right", "HighPunch" };
+        FireBall = new SpecialInput(fireBallMotion, playerNum);
+        string[] fireBallMotionInverted = new string[] { "down", "left", "HighPunch" };
+        FireBallInverted = new SpecialInput(fireBallMotionInverted, playerNum);
     }
 
     // Update is called once per frame
@@ -93,7 +114,9 @@ public class TestAnimInput : MonoBehaviour
             {
                 body.velocity = LeftVelocity();
             }
-            if (IsGrounded())
+            InAirState = !IsGrounded();
+
+            if (!InAirState)
                 GroundUpdate();
             else
                 AirUpdate();
@@ -120,6 +143,15 @@ public class TestAnimInput : MonoBehaviour
         {
             BlockingState = false;
         }
+
+        if (Inverted() && FireBallInverted.Check() || !Inverted() && FireBall.Check())
+        {
+            StartCoroutine(Attack(FireBallAttack));
+        }
+        else if (input.GetButtonDown("HighPunch"))
+        {
+            StartCoroutine(Attack(HighPunch));
+        }
         if (input.GetButtonDown("up"))
         {
             body.velocity = JumpVelocity();
@@ -127,13 +159,17 @@ public class TestAnimInput : MonoBehaviour
         }
         if (input.GetButtonDown("LowPunch"))
         {
-            StartCoroutine(Attack("Jab"));
+            StartCoroutine(Attack(LowPunch));
         }
-        if (input.GetButtonDown("HighPunch"))
+        if (input.GetButtonDown("LowKick"))
         {
-            StartCoroutine(Attack("Cross"));
+            StartCoroutine(Attack(LowKick));
         }
-        
+        if (input.GetButtonDown("HighKick"))
+        {
+            StartCoroutine(Attack(HighKick));
+        }
+
         if (!input.GetButtonDown("right") && !input.GetButtonDown("left"))
             body.velocity = new Vector2(0, body.velocity.y);
     }
@@ -151,38 +187,34 @@ public class TestAnimInput : MonoBehaviour
 
     public bool Inverted()
     {
-
         // If opponent is to the left, then inverted
-        if (opponent.GetComponent<Renderer>().bounds.center.x < gameObject.GetComponent<Renderer>().bounds.center.x)
+        if (opponent.transform.position.x < gameObject.transform.position.x)
             return true;
         return false;
     }
 
     public bool IsGrounded()
     {
-
-        return this.GetComponent<BoxCollider2D>().IsTouching(ground);
+        return gameObject.GetComponent<BoxCollider2D>().IsTouching(ground);
     }
 
     // AttackHit should be called by script on the attack hitbox
-    // This is called when you hit someone
-    public void AttackHit(Collider2D collision, int attackDamage, int attackStun, int blockStun, float hurtVelocity)
+    // This is called on the player that gets hit's testAnimInput
+    public void AttackHit(int attackDamage, int attackStun, int blockStun, float hurtVelocity)
     {
-        Debug.Log(this.gameObject.name + "Hit" + collision.gameObject.name);
-
-        // Blocked
-        Debug.Log(collision.name);
-        if (collision.GetComponent<TestAnimInput>().anim.GetCurrentAnimatorStateInfo(0).IsName("Block") ||
-            collision.GetComponent<TestAnimInput>().anim.GetCurrentAnimatorStateInfo(0).IsName("BlockHurt") ||
-            collision.GetComponent<TestAnimInput>().anim.GetCurrentAnimatorStateInfo(0).IsName("CrouchBlock") ||
-            collision.GetComponent<TestAnimInput>().anim.GetCurrentAnimatorStateInfo(0).IsName("CrouchBlockHurt"))
+        Debug.Log(gameObject.name + " was hit!");
+        
+        if (anim.GetCurrentAnimatorStateInfo(0).IsName("Block") ||
+            anim.GetCurrentAnimatorStateInfo(0).IsName("BlockHurt") ||
+            anim.GetCurrentAnimatorStateInfo(0).IsName("CrouchBlock") ||
+            anim.GetCurrentAnimatorStateInfo(0).IsName("CrouchBlockHurt"))
         {
-            collision.GetComponent<TestAnimInput>().BlockHurt(blockStun, 0);
+            BlockHurt(blockStun, 0);
         }
         else
         {
-            manager.currentHP[collision.gameObject.GetComponent<TestAnimInput>().playerNum - 1] -= attackDamage;
-            collision.GetComponent<TestAnimInput>().GetHurt(attackStun, hurtVelocity);
+            manager.currentHP[playerNum - 1] -= attackDamage;
+            GetHurt(attackStun, hurtVelocity);
         }
     }
     
@@ -215,20 +247,26 @@ public class TestAnimInput : MonoBehaviour
     IEnumerator Attack(string atName)
     {
         anim.SetBool(atName, true);
-        yield return new WaitForSeconds(0.1f); // 6 Frames
+        yield return new WaitForSeconds(10 * Time.deltaTime); // 10 Frames
         anim.SetBool(atName, false);
     }
     public void GetHurt(int attackStun, float hurtVelocity)
     {
         HurtingState = true;
         stunFrames = attackStun;
-        body.velocity = new Vector2(hurtVelocity, body.velocity.y);
+        if (!Inverted())
+            body.velocity = new Vector2(hurtVelocity, body.velocity.y);
+        else
+            body.velocity = new Vector2(-hurtVelocity, body.velocity.y);
     }
     public void BlockHurt(int attackStun, float hurtVelocity)
     {
         BlockHurtingState = true;
         blockStunFrames = attackStun;
-        body.velocity = new Vector2(hurtVelocity, body.velocity.y);
+        if (!Inverted())
+            body.velocity = new Vector2(hurtVelocity, body.velocity.y);
+        else
+            body.velocity = new Vector2(-hurtVelocity, body.velocity.y);
     }
 
 

@@ -54,6 +54,7 @@
      <Compile Include="Assets\Scripts\AttackCollider.cs" />
      <Compile Include="Assets\Scripts\Effects\HitEffect.cs" />
      <Compile Include="Assets\Scripts\Input\Action.cs" />
+     <Compile Include="Assets\Scripts\Input\Characters\SpawnProjectile.cs" />
      <Compile Include="Assets\Scripts\Input\Characters\TestAnimInput.cs" />
      <Compile Include="Assets\Scripts\Input\Characters\TestInput.cs" />
      <Compile Include="Assets\Scripts\Input\InputManager.cs" />
