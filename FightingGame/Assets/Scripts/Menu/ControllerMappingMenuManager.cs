@@ -13,6 +13,7 @@ public class ControllerMappingMenuManager : MonoBehaviour {
     
     // Size should always be 9!
     public Sprite[] pics;
+    
     /*
      * 0: Empty
      * 1: HP (left)

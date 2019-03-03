@@ -845,6 +845,10 @@ MonoBehaviour:
   currentHP:
   - 0
   - 0
+  boxerTemplate: {fileID: 0}
+  fencerTemplate: {fileID: 0}
+  player1Template: {fileID: 0}
+  player2Template: {fileID: 0}
 --- !u!4 &1533308223
 Transform:
   m_ObjectHideFlags: 0

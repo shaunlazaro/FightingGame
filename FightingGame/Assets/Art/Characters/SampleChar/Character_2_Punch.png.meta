@@ -1,6 +1,6 @@
 fileFormatVersion: 2
 guid: 712483b668fbd9c4585c673d2c73ea99
-timeCreated: 1550514930
+timeCreated: 1550687179
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
@@ -125,36 +125,8 @@ TextureImporter:
         y: 560
         width: 125
         height: 280
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: Character_2_Punch_1
-      rect:
-        serializedVersion: 2
-        x: 280
-        y: 559
-        width: 124
-        height: 280
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: Character_2_Punch_2
-      rect:
-        serializedVersion: 2
-        x: 560
-        y: 560
-        width: 127
-        height: 280
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+      alignment: 9
+      pivot: {x: 0.18499859, y: 0.002496338}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -164,11 +136,11 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 1
-        y: 281
+        y: 280
         width: 120
         height: 280
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+      alignment: 9
+      pivot: {x: 0.20334092, y: -0.0010683332}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -181,50 +153,8 @@ TextureImporter:
         y: 280
         width: 215
         height: 280
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: Character_2_Punch_5
-      rect:
-        serializedVersion: 2
-        x: 560
-        y: 281
-        width: 215
-        height: 280
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: Character_2_Punch_6
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 0
-        width: 126
-        height: 280
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: Character_2_Punch_7
-      rect:
-        serializedVersion: 2
-        x: 280
-        y: 0
-        width: 126
-        height: 280
-      alignment: 7
-      pivot: {x: 0.5, y: 0}
+      alignment: 9
+      pivot: {x: 0.20468253, y: 0.018709673}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

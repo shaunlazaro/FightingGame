@@ -9,25 +9,50 @@ public class CombatUI : MonoBehaviour {
     public GameObject healthBarRight;
     private Manager manager = Manager.instance;
 
-	public void UpdateUI()
+    public GameObject player1SpawnPoint;
+    public GameObject player2SpawnPoint;
+    public GameObject ground;
+
+    public bool playerIsDead = false;
+    public float victoryTime;
+
+    public void UpdateUI()
     {
         healthBarLeft.transform.localScale = new Vector2(manager.currentHP[0] / manager.maxHP[0],1);
         healthBarRight.transform.localScale = new Vector2(manager.currentHP[1] / manager.maxHP[1],1);
+    }
+
+    void Start()
+    {
+        manager.SpawnPlayers(player1SpawnPoint, player2SpawnPoint, ground);
+        playerIsDead = false;
     }
 
 	// Update is called once per frame
 	void Update () {
         UpdateUI();
 
-        if (manager.currentHP[0] <= 0)
+        if (!playerIsDead && manager.currentHP[0] <= 0)
         {
             Debug.Log("Player 1 Loss");
-            SceneManager.LoadScene("Title");
+            playerIsDead = true;
+            StartCoroutine(VictoryTimer());
         }
-        if (manager.currentHP[1] <= 0)
+        if (!playerIsDead && manager.currentHP[1] <= 0)
         {
             Debug.Log("Player 2 Loss");
-            SceneManager.LoadScene("Title");
+            playerIsDead = true;
+            StartCoroutine(VictoryTimer());
         }
+    }
+
+    IEnumerator VictoryTimer()
+    {
+        Debug.Log("Waiting For Victory...");
+
+        yield return new WaitForSeconds(victoryTime);
+
+        Debug.Log("Done!");
+        SceneManager.LoadScene("Title");
     }
 }

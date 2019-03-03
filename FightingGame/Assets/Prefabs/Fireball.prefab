@@ -129,9 +129,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackDamage: 10
-  attackStun: 10
-  blockStun: 10
-  velocity: 10
+  attackStun: 5
+  blockStun: 5
+  velocity: 2
   hitStopFrames: 5
   counter: 0
   projectile: 1

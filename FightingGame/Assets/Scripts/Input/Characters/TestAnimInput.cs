@@ -34,6 +34,13 @@ public class TestAnimInput : MonoBehaviour
 
     public SpecialInput FireBall;
     public SpecialInput FireBallInverted;
+    public SpecialInput ThrowCommand;
+    public SpecialInput ThrowCommandInvert;
+    
+    public GameObject ThrownObject;
+    public GameObject ThrowStart;
+    public GameObject ThrowEnd;
+    public float ThrowVelocity;
 
 
     bool HurtingState
@@ -77,6 +84,12 @@ public class TestAnimInput : MonoBehaviour
         FireBall = new SpecialInput(fireBallMotion, playerNum);
         string[] fireBallMotionInverted = new string[] { "down", "left", "HighPunch" };
         FireBallInverted = new SpecialInput(fireBallMotionInverted, playerNum);
+
+        string[] throwInputCommand = new string[] { "LowPunch", "LowKick" };
+        ThrowCommand = new SpecialInput(throwInputCommand, playerNum);
+        string[] throwInputCommandInvert = new string[] { "LowKick", "LowPunch" };
+        ThrowCommandInvert = new SpecialInput(throwInputCommandInvert, playerNum);
+
     }
 
     // Update is called once per frame
@@ -105,14 +118,22 @@ public class TestAnimInput : MonoBehaviour
             {
                 transform.localScale = new Vector2(1, 1);
             }
+            if (anim.GetCurrentAnimatorStateInfo(0).IsName("Idle") ||
+                anim.GetCurrentAnimatorStateInfo(0).IsName("Block") ||
+                anim.GetCurrentAnimatorStateInfo(0).IsName("InAir") ||
+                anim.GetCurrentAnimatorStateInfo(0).IsName("Landing")
+                )
+            {
+                // TEMP UNTIL WALKING ANIMATIONS COME IN
+                if (input.GetButtonDown("right"))
+                {
 
-            if (input.GetButtonDown("right"))
-            {
-                body.velocity = RightVelocity();
-            }
-            else if (input.GetButtonDown("left"))
-            {
-                body.velocity = LeftVelocity();
+                    body.velocity = RightVelocity();
+                }
+                else if (input.GetButtonDown("left"))
+                {
+                    body.velocity = LeftVelocity();
+                }
             }
             InAirState = !IsGrounded();
 
@@ -154,14 +175,20 @@ public class TestAnimInput : MonoBehaviour
         }
         if (input.GetButtonDown("up"))
         {
-            body.velocity = JumpVelocity();
-            justJumped = true;
+            StartCoroutine(Attack("Jump", 1));
         }
-        if (input.GetButtonDown("LowPunch"))
+
+
+        if (ThrowCommand.Check() || ThrowCommandInvert.Check())
+        {
+            Debug.Log("Throw Command Recognized!");
+            StartCoroutine(Attack("Throw"));
+        }
+        else if (input.GetButtonDown("LowPunch"))
         {
             StartCoroutine(Attack(LowPunch));
         }
-        if (input.GetButtonDown("LowKick"))
+        else if (input.GetButtonDown("LowKick"))
         {
             StartCoroutine(Attack(LowKick));
         }
@@ -179,7 +206,7 @@ public class TestAnimInput : MonoBehaviour
             justJumped = false; // Prevents double jump from triggering with only one button press
         if (input.GetButtonDown("up") && doubleJumpReady && !justJumped)
         {
-            body.velocity = new Vector2(body.velocity.x, JumpVelocity().y);
+            body.velocity = new Vector2(body.velocity.x + JumpVelocity().y / 2, JumpVelocity().y);
             doubleJumpReady = false;
         }
     }
@@ -214,8 +241,17 @@ public class TestAnimInput : MonoBehaviour
         else
         {
             manager.currentHP[playerNum - 1] -= attackDamage;
+            if(manager.currentHP[playerNum - 1] <= 0 )
+            {
+                PlayerDie();
+            }
             GetHurt(attackStun, hurtVelocity);
         }
+    }
+
+    void PlayerDie()
+    {
+        gameObject.SetActive(false);
     }
     
     bool Blocking()
@@ -239,22 +275,71 @@ public class TestAnimInput : MonoBehaviour
             return new Vector2(backwardSpeed, body.velocity.y);
 
     }
+
+    public void Jump() // Called by animator
+    {
+        body.velocity = JumpVelocity();
+        justJumped = true;
+    }
     Vector2 JumpVelocity()
     {
         return new Vector2(body.velocity.x, jumpPower);
     }
 
-    IEnumerator Attack(string atName)
+    IEnumerator Attack(string atName, int frames = 10)
     {
         anim.SetBool(atName, true);
-        yield return new WaitForSeconds(10 * Time.deltaTime); // 10 Frames
+        yield return new WaitForSeconds(frames * Time.deltaTime); // 10 Frames
         anim.SetBool(atName, false);
     }
+
+    public void ThrowAttack()
+    {
+        if (this.GetComponentInChildren<AttackCollider>().throwObject == null)
+        {
+            Debug.Log("Throw whiff!");    
+        }
+        else
+        {
+            Debug.Log("Throw hit " + this.GetComponentInChildren<AttackCollider>().throwObject.name);
+            ThrownObject = GetComponentInChildren<AttackCollider>().throwObject;
+            ThrownObject.transform.position = ThrowStart.transform.position;
+            StartCoroutine(Attack("ThrowSuccess"));
+        }
+    }
+
+    public void ThrowHold()
+    {
+        if (ThrownObject == null)
+        {
+            Debug.Log("ThrowHold fails; no target");
+        }
+        else
+        {
+            Debug.Log("ThrowHold: " + ThrownObject.name);
+            if(Inverted())
+            {
+                Debug.Log("Inversion, throw left");
+            }
+            else
+            {
+                Debug.Log("Throw Right");
+                /*
+                ThrownObject.transform.position
+                    = Vector3.MoveTowards(ThrownObject.transform.position,
+                    new Vector3(gameObject.GetComponent<Renderer>().bounds.max.x,
+                    gameObject.GetComponent<Renderer>().bounds.max.y),
+                    10 * Time.deltaTime);
+                    */
+            }
+        }
+    }
+
     public void GetHurt(int attackStun, float hurtVelocity)
     {
         HurtingState = true;
         stunFrames = attackStun;
-        if (!Inverted())
+        if (Inverted()) // Inverted means +, because away from the center
             body.velocity = new Vector2(hurtVelocity, body.velocity.y);
         else
             body.velocity = new Vector2(-hurtVelocity, body.velocity.y);
@@ -263,7 +348,7 @@ public class TestAnimInput : MonoBehaviour
     {
         BlockHurtingState = true;
         blockStunFrames = attackStun;
-        if (!Inverted())
+        if (Inverted())
             body.velocity = new Vector2(hurtVelocity, body.velocity.y);
         else
             body.velocity = new Vector2(-hurtVelocity, body.velocity.y);

@@ -13,18 +13,29 @@ public class AttackCollider : MonoBehaviour {
     public int counter;
 
     public bool projectile = false; // If true, the gameobject will self destruct after hitstop ends.
+    public bool throwAttack = false;
+    public GameObject throwObject;
 
     public GameObject particlePoint;
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.name.Contains("Player")) { 
-            Time.timeScale = 0;
+        if (collision.gameObject.name.Contains("Player"))
+        {
+            if (!throwAttack)
+            {
+                Time.timeScale = 0;
 
-            collision.GetComponentInParent<TestAnimInput>().AttackHit(attackDamage, attackStun, blockStun, velocity);
-            GameObject.Find("EventSystem").GetComponent<HitEffect>().SpawnEffect(3, particlePoint.transform.position);
+                collision.GetComponentInParent<TestAnimInput>().AttackHit(attackDamage, attackStun, blockStun, velocity);
+                GameObject.Find("EventSystem").GetComponent<HitEffect>().SpawnEffect(3, particlePoint.transform.position);
 
-            counter = hitStopFrames;
+                counter = hitStopFrames;
+            }
+            else
+            {
+                // Throw attack = true!
+                throwObject = collision.gameObject;
+            }
         }
         if(collision.gameObject.name.Contains("Border"))
         {
@@ -33,6 +44,7 @@ public class AttackCollider : MonoBehaviour {
         }
     }
     
+
     void Update()
     {
         if (Time.timeScale == 0 && counter == 0)

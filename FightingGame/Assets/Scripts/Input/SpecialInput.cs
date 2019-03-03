@@ -7,7 +7,7 @@ public class SpecialInput{
     public string[] buttons;
     private int currentIndex = 0; //moves along the array as buttons are pressed
 
-    public float allowedTimeBetweenButtons = 0.3f; //tweak as needed
+    public float allowedTimeBetweenButtons = 0.6f; //tweak as needed
     private float timeLastButtonPressed;
 
     private int stickNum = 1;

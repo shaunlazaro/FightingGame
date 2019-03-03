@@ -83,7 +83,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1317685373166422}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4, y: -2, z: 0}
+  m_LocalPosition: {x: 1.5731109, y: -4.9463096, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4753409701449510}
@@ -161,10 +161,10 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.8, y: 2.0067244}
+  m_Offset: {x: 0.5, y: 1.9}
   m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 1.0714285, w: 0}
-    pivot: {x: 0.5, y: 0}
+    border: {x: 0, y: 0.071428575, z: 1.0714285, w: 0.14285715}
+    pivot: {x: 0.18491404, y: 0.023049643}
     oldSize: {x: 4, y: 4.285714}
     newSize: {x: 2.8, y: 3}
     adaptiveTilingThreshold: 0.5
@@ -224,8 +224,8 @@ MonoBehaviour:
   playerNum: 2
   ground: {fileID: 0}
   forwardSpeed: 6
-  backwardSpeed: -3
-  jumpPower: 10
+  backwardSpeed: -4
+  jumpPower: 7
   doubleJumpReady: 0
   justJumped: 0
   LowPunch: QuickThrust

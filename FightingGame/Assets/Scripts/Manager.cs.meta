@@ -1,11 +1,19 @@
 fileFormatVersion: 2
 guid: 47f05faa3641faf40a00c854292f9660
-timeCreated: 1543977923
+timeCreated: 1550599311
 licenseType: Free
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - boxerTemplate: {fileID: 1249972309399080, guid: 2e490aac96124a2419216f210afac590,
+      type: 2}
+  - fencerTemplate: {fileID: 1317685373166422, guid: 984cf8f3224fd594f902e4f7b157a4ca,
+      type: 2}
+  - player1Template: {fileID: 1249972309399080, guid: 2e490aac96124a2419216f210afac590,
+      type: 2}
+  - player2Template: {fileID: 1317685373166422, guid: 984cf8f3224fd594f902e4f7b157a4ca,
+      type: 2}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 
