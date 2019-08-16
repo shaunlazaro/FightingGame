@@ -68,11 +68,11 @@ public class CharacterSelectController : MonoBehaviour {
             p2Mouse.anchoredPosition += new Vector2(-mouseSpeed, 0);
         }
 
-        if (input1.GetButtonDown("HighPunch"))
+        if (input1.GetButtonDown("StrongAttack"))
         {
             CheckCharacterOverlaps(p1Mouse, 1);
         }
-        if (input2.GetButtonDown("HighPunch"))
+        if (input2.GetButtonDown("StrongAttack"))
         {
             CheckCharacterOverlaps(p2Mouse, 2);
         }

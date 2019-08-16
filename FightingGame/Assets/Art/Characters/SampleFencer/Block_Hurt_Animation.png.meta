@@ -1,10 +1,11 @@
 fileFormatVersion: 2
 guid: 5f36902de1b41a24c9cf883dcbcc186c
-timeCreated: 1551374282
+timeCreated: 1553871292
 licenseType: Free
 TextureImporter:
   fileIDToRecycleName:
     21300000: Block_Hurt_Animation_0
+    21300002: Block_Hurt_Animation_1
   externalObjects: {}
   serializedVersion: 4
   mipmaps:
@@ -120,6 +121,20 @@ TextureImporter:
         height: 280
       alignment: 9
       pivot: {x: 0.33999595, y: 0.003987556}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+    - serializedVersion: 2
+      name: Block_Hurt_Animation_1
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 416
+        width: 160
+        height: 172
+      alignment: 9
+      pivot: {x: 0.3146311, y: -0.6271435}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []

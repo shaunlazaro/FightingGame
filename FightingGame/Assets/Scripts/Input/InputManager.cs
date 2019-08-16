@@ -16,13 +16,13 @@ public class InputManager{
     // Returns the "Check" function of the named action
 	public bool GetButtonDown(string s)
     {
-        if (s == "LowPunch")
+        if (s == "WeakAttack")
             return LowPunch.Check();
-        else if (s == "HighPunch")
+        else if (s == "StrongAttack")
             return HighPunch.Check();
-        else if (s == "LowKick")
+        else if (s == "Throw")
             return LowKick.Check();
-        else if (s == "HighKick")
+        else if (s == "Special")
             return HighKick.Check();
         else if (s == "down")
             return down.Check();

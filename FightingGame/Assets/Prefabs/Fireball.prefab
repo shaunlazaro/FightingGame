@@ -129,12 +129,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackDamage: 10
-  attackStun: 5
-  blockStun: 5
-  velocity: 2
+  attackStun: 20
+  blockStun: 15
+  velocity: {x: 3, y: 3}
   hitStopFrames: 5
   counter: 0
   projectile: 1
+  throwAttack: 0
+  knockDownAttack: 0
   particlePoint: {fileID: 1920433741576884}
 --- !u!212 &212782782280174242
 SpriteRenderer:

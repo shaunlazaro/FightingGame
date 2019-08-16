@@ -53,7 +53,7 @@ public class Manager : MonoBehaviour {
         }
     }
 
-    public void SpawnPlayers(GameObject location1, GameObject location2, GameObject ground)
+    public void SpawnPlayers(GameObject location1, GameObject location2, GameObject ground, GameObject wall)
     {
         GameObject p1 = Instantiate(player1Template, location1.transform.position, transform.rotation);
         GameObject p2 = Instantiate(player2Template, location2.transform.position, transform.rotation);
@@ -61,9 +61,11 @@ public class Manager : MonoBehaviour {
         p1.GetComponent<TestAnimInput>().opponent = p2;
         p1.GetComponent<TestAnimInput>().playerNum = 1;
         p1.GetComponent<TestAnimInput>().ground = ground.GetComponent<BoxCollider2D>();
+        p1.GetComponent<TestAnimInput>().walls = wall.GetComponents<BoxCollider2D>();
         p2.GetComponent<TestAnimInput>().opponent = p1;
         p2.GetComponent<TestAnimInput>().playerNum = 2;
         p2.GetComponent<TestAnimInput>().ground = ground.GetComponent<BoxCollider2D>();
+        p2.GetComponent<TestAnimInput>().walls = wall.GetComponents<BoxCollider2D>();
         Time.timeScale = 1;
     }
 

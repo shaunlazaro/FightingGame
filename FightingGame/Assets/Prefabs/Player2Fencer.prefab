@@ -31,6 +31,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1327451273188394
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4612626852999556}
+  m_Layer: 0
+  m_Name: ThrowEnd
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1457019580871378
 GameObject:
   m_ObjectHideFlags: 1
@@ -63,6 +78,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1768652864706830
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4978655079492274}
+  m_Layer: 0
+  m_Name: ThrowStart
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!4 &4102984843471302
 Transform:
   m_ObjectHideFlags: 1
@@ -87,8 +117,23 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4753409701449510}
+  - {fileID: 4978655079492274}
+  - {fileID: 4612626852999556}
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4612626852999556
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1327451273188394}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.92, y: 4.08, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4409326518675122}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4753409701449510
 Transform:
@@ -103,6 +148,19 @@ Transform:
   - {fileID: 4102984843471302}
   m_Father: {fileID: 4409326518675122}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4978655079492274
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1768652864706830}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -0.08, y: 4.0766397, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4409326518675122}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!50 &50271600859286672
 Rigidbody2D:
@@ -205,10 +263,13 @@ MonoBehaviour:
   attackDamage: 0
   attackStun: 0
   blockStun: 0
-  velocity: 0
+  velocity: {x: 0, y: 0}
   hitStopFrames: 0
   counter: 0
   projectile: 0
+  throwAttack: 0
+  knockDownAttack: 0
+  reStandAttack: 0
   particlePoint: {fileID: 1457019580871378}
 --- !u!114 &114916817329488174
 MonoBehaviour:
@@ -223,16 +284,24 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerNum: 2
   ground: {fileID: 0}
+  walls: []
   forwardSpeed: 6
   backwardSpeed: -4
   jumpPower: 7
   doubleJumpReady: 0
   justJumped: 0
-  LowPunch: QuickThrust
-  HighPunch: N/A
-  LowKick: QuickSlash
-  HighKick: N/A
-  FireBallAttack: N/A
+  knockDownLanded: 0
+  invulnerable: 0
+  WeakAttackName: QuickSlash
+  StrongAttackName: QuickThrust
+  ThrowButtonAttackName: Throw
+  SpecialButtonAttackName: N/A
+  QuarterForwardAttackName: N/A
+  ThrownObject: {fileID: 0}
+  ThrowStart: {fileID: 1768652864706830}
+  ThrowEnd: {fileID: 1327451273188394}
+  ThrowVelocityX: 6
+  ThrowVelocityY: 6
   opponent: {fileID: 0}
 --- !u!212 &212785381793273912
 SpriteRenderer:

@@ -18,6 +18,7 @@ public class TestAnimInput : MonoBehaviour
     private Rigidbody2D body;
     private Manager manager = Manager.instance;
     public BoxCollider2D ground;
+    public BoxCollider2D[] walls;
 
     public float forwardSpeed;
     public float backwardSpeed;
@@ -25,12 +26,15 @@ public class TestAnimInput : MonoBehaviour
 
     public bool doubleJumpReady;
     public bool justJumped = false;
+    public bool knockDownLanded = false;
+    public bool invulnerable = false;
 
-    public string LowPunch;
-    public string HighPunch;
-    public string LowKick;
-    public string HighKick;
-    public string FireBallAttack;
+    public string WeakAttackName;
+    public string StrongAttackName;
+    public string ThrowButtonAttackName;
+    public string SpecialButtonAttackName;
+
+    public string QuarterForwardAttackName;
 
     public SpecialInput FireBall;
     public SpecialInput FireBallInverted;
@@ -40,9 +44,11 @@ public class TestAnimInput : MonoBehaviour
     public GameObject ThrownObject;
     public GameObject ThrowStart;
     public GameObject ThrowEnd;
-    public float ThrowVelocity;
+    public float ThrowVelocityX;
+    public float ThrowVelocityY;
+    private Vector2 ThrowVelocity;
 
-
+    // AnimStateInfo
     bool HurtingState
     {
         set { anim.SetBool("Hurt", value); }
@@ -68,10 +74,58 @@ public class TestAnimInput : MonoBehaviour
         set { anim.SetBool("InAir", value); }
         get { return anim.GetBool("InAir"); }
     }
+    bool KnockedDownState
+    {
+        set { anim.SetBool("Toppled", value); }
+        get { return anim.GetBool("Toppled"); }
+    }
+
+    public bool CanWalk // Allowed to press left or right
+    {
+        get
+        {
+            return anim.GetCurrentAnimatorStateInfo(0).IsName("Idle") ||
+                anim.GetCurrentAnimatorStateInfo(0).IsName("Block") ||
+                anim.GetCurrentAnimatorStateInfo(0).IsName("InAir") ||
+                anim.GetCurrentAnimatorStateInfo(0).IsName("Landing");
+        }
+    }
+
+    bool ThisPlayerBeingThrown
+    {
+        get
+        {
+            return anim.GetCurrentAnimatorStateInfo(0).IsName("GettingThrown") 
+                || anim.GetCurrentAnimatorStateInfo(0).IsName("KnockedDown");
+        }
+    }
+    bool PlayerBeingThrown
+    {
+        get
+        {
+            return ThisPlayerBeingThrown ||
+                opponent.GetComponent<TestAnimInput>().ThisPlayerBeingThrown;
+        }
+    }
+
+    bool OpponentTouchingWall
+    {
+        get { return opponent.GetComponent<Rigidbody2D>().IsTouching(walls[0]) 
+                || opponent.GetComponent<Rigidbody2D>().IsTouching(walls[1]); }
+    }
+
+
     int stunFrames = 0;
     int blockStunFrames = 0;
 
     public GameObject opponent;
+    bool TooCloseToOpponent
+    {
+        get { return Physics2D.Distance(GetComponent<Collider2D>(), 
+            opponent.GetComponent<Collider2D>()).distance < 0.2; }
+    }
+    float forceOfRepulsion = 100;
+    float forceOfRepulsionInverted = -100;
 
     // Use this for initialization
     void Start()
@@ -80,22 +134,46 @@ public class TestAnimInput : MonoBehaviour
         anim = gameObject.GetComponent<Animator>();
         body = gameObject.GetComponent<Rigidbody2D>();
 
+        ThrowVelocity = new Vector2(ThrowVelocityX, ThrowVelocityY);
+
         string[] fireBallMotion = new string[] { "down", "right", "HighPunch" };
         FireBall = new SpecialInput(fireBallMotion, playerNum);
         string[] fireBallMotionInverted = new string[] { "down", "left", "HighPunch" };
         FireBallInverted = new SpecialInput(fireBallMotionInverted, playerNum);
 
-        string[] throwInputCommand = new string[] { "LowPunch", "LowKick" };
-        ThrowCommand = new SpecialInput(throwInputCommand, playerNum);
-        string[] throwInputCommandInvert = new string[] { "LowKick", "LowPunch" };
-        ThrowCommandInvert = new SpecialInput(throwInputCommandInvert, playerNum);
-
+        Physics2D.IgnoreCollision(GetComponent<Collider2D>(), opponent.GetComponent<Collider2D>());
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (stunFrames > 0)
+
+        // Drop the character
+        if (ThrownObject != null && CanWalk)
+        {
+            ThrownObject.GetComponent<Rigidbody2D>().simulated = true;
+            ThrownObject.GetComponent<Animator>().Play("Idle");
+            ThrownObject = null;
+        }
+
+        InAirState = !IsGrounded();
+
+        if (KnockedDownState)
+        {
+            if(IsGrounded())
+            {
+                invulnerable = true;
+                body.velocity = Vector2.zero;
+                stunFrames = 0;
+                HurtingState = false;
+                if(!knockDownLanded)
+                {
+                    knockDownLanded = true;
+                    StartCoroutine(Attack("Toppled", 120));
+                }
+            }
+        }
+        else if (stunFrames > 0)
         {
             HurtingState = true;
             stunFrames--;
@@ -109,6 +187,8 @@ public class TestAnimInput : MonoBehaviour
         {
             HurtingState = false;
             BlockHurtingState = false;
+            knockDownLanded = false;
+            invulnerable = false;
 
             if (Inverted())
             {
@@ -118,24 +198,85 @@ public class TestAnimInput : MonoBehaviour
             {
                 transform.localScale = new Vector2(1, 1);
             }
-            if (anim.GetCurrentAnimatorStateInfo(0).IsName("Idle") ||
-                anim.GetCurrentAnimatorStateInfo(0).IsName("Block") ||
-                anim.GetCurrentAnimatorStateInfo(0).IsName("InAir") ||
-                anim.GetCurrentAnimatorStateInfo(0).IsName("Landing")
-                )
+
+
+            #region Movement
+
+            // Normal Movement
+            if (!TooCloseToOpponent)
             {
-                // TEMP UNTIL WALKING ANIMATIONS COME IN
                 if (input.GetButtonDown("right"))
                 {
-
                     body.velocity = RightVelocity();
                 }
-                else if (input.GetButtonDown("left"))
+                if (input.GetButtonDown("left"))
                 {
                     body.velocity = LeftVelocity();
                 }
             }
-            InAirState = !IsGrounded();
+            // Touching the opponent
+            else
+            {
+
+                // Touching at wall
+                if (OpponentTouchingWall)
+                {
+                    if (input.GetButtonDown("right"))
+                    {
+                        if (Inverted()) //Inverted + right = retreat, normal
+                        {
+                            body.velocity = RightVelocity();
+                        }
+                        else // Not inverted + right = approaching intersect, nothing should happen
+                        {
+                            body.velocity = new Vector2(0, body.velocity.y);
+                        }
+                    }
+                    if (input.GetButtonDown("left"))
+                    {
+                        if (Inverted()) //Inverted + left = advance, nothing should happen
+                        {
+                            body.velocity = new Vector2(0, body.velocity.y);
+                        }
+                        else // Not inverted + right = retreating, normal
+                        {
+                            body.velocity = LeftVelocity();
+                        }
+                    }
+                }
+                // Touching, but not at wall
+                else
+                {
+                    if (input.GetButtonDown("right"))
+                    {
+                        if (Inverted()) //Inverted + right = retreat
+                        {
+                            body.velocity = RightVelocity();
+                        }
+                        else // Not inverted + right = approaching intersect, both move same direction
+                        {
+                            opponent.GetComponent<Rigidbody2D>().velocity = new Vector2(RightVelocity().x / 2,
+                                opponent.GetComponent<TestAnimInput>().body.velocity.y);
+                            body.velocity = new Vector2(RightVelocity().x / 2, body.velocity.y);
+                        }
+                    }
+                    if (input.GetButtonDown("left"))
+                    {
+                        if (Inverted()) //Inverted + left = advance
+                        {
+                            opponent.GetComponent<Rigidbody2D>().velocity = new Vector2(LeftVelocity().x / 2,
+                                opponent.GetComponent<TestAnimInput>().body.velocity.y);
+                            body.velocity = new Vector2(LeftVelocity().x / 2, body.velocity.y);
+                        }
+                        else // Not inverted + left = retreat
+                        {
+                            body.velocity = LeftVelocity();
+                        }
+                    }
+                }
+            }
+
+            #endregion
 
             if (!InAirState)
                 GroundUpdate();
@@ -143,6 +284,8 @@ public class TestAnimInput : MonoBehaviour
                 AirUpdate();
         }
     }
+
+    // Reset double jump, handle ground inputs (attacks, walking, crouching)
     void GroundUpdate()
     {
         doubleJumpReady = true;
@@ -165,40 +308,58 @@ public class TestAnimInput : MonoBehaviour
             BlockingState = false;
         }
 
+        /*
         if (Inverted() && FireBallInverted.Check() || !Inverted() && FireBall.Check())
         {
-            StartCoroutine(Attack(FireBallAttack));
+            StartCoroutine(Attack(QuarterForwardAttackName));
         }
-        else if (input.GetButtonDown("HighPunch"))
-        {
-            StartCoroutine(Attack(HighPunch));
-        }
+         */
+
+
         if (input.GetButtonDown("up"))
         {
             StartCoroutine(Attack("Jump", 1));
+        }  
+        if (input.GetButtonDown("WeakAttack"))
+        {
+            StartCoroutine(Attack(WeakAttackName));
+        }
+        else if (input.GetButtonDown("StrongAttack"))
+        {
+            StartCoroutine(Attack(StrongAttackName));
+        }
+        if (input.GetButtonDown("Throw"))
+        {
+            StartCoroutine(Attack(ThrowButtonAttackName));
+        }
+        if (input.GetButtonDown("Special"))
+        {
+            StartCoroutine(Attack(SpecialButtonAttackName));
         }
 
-
-        if (ThrowCommand.Check() || ThrowCommandInvert.Check())
-        {
-            Debug.Log("Throw Command Recognized!");
-            StartCoroutine(Attack("Throw"));
-        }
-        else if (input.GetButtonDown("LowPunch"))
-        {
-            StartCoroutine(Attack(LowPunch));
-        }
-        else if (input.GetButtonDown("LowKick"))
-        {
-            StartCoroutine(Attack(LowKick));
-        }
-        if (input.GetButtonDown("HighKick"))
-        {
-            StartCoroutine(Attack(HighKick));
-        }
-
-        if (!input.GetButtonDown("right") && !input.GetButtonDown("left"))
+        // Instant stop if you can walk and aren't violating the space (in case of jumping in?)
+        if (!input.GetButtonDown("right") && !input.GetButtonDown("left") && !TooCloseToOpponent && CanWalk)
             body.velocity = new Vector2(0, body.velocity.y);
+        // Instant ground stop if you can't walk
+        if (!CanWalk)
+            body.velocity = new Vector2(0, body.velocity.y);
+
+        if (TooCloseToOpponent && !input.GetButtonDown("left")
+            && !input.GetButtonDown("right")
+            && !opponent.GetComponent<TestAnimInput>().input.GetButtonDown("left")
+            && !opponent.GetComponent<TestAnimInput>().input.GetButtonDown("right")
+            && !PlayerBeingThrown)
+        {
+            Debug.Log("Repulsion!");
+            if (Inverted())
+            {
+                opponent.GetComponent<Rigidbody2D>().AddForce(new Vector2(forceOfRepulsionInverted, 0));
+            }
+            else
+            {
+                opponent.GetComponent<Rigidbody2D>().AddForce(new Vector2(forceOfRepulsion, 0));
+            }
+        }
     }
     void AirUpdate()
     {
@@ -206,9 +367,11 @@ public class TestAnimInput : MonoBehaviour
             justJumped = false; // Prevents double jump from triggering with only one button press
         if (input.GetButtonDown("up") && doubleJumpReady && !justJumped)
         {
-            body.velocity = new Vector2(body.velocity.x + JumpVelocity().y / 2, JumpVelocity().y);
+            body.velocity = new Vector2(0, JumpVelocity().y);
             doubleJumpReady = false;
         }
+        if (!input.GetButtonDown("right") && !input.GetButtonDown("left") && !TooCloseToOpponent && !PlayerBeingThrown)
+            body.velocity = new Vector2(0, body.velocity.y);
     }
 
 
@@ -227,25 +390,47 @@ public class TestAnimInput : MonoBehaviour
 
     // AttackHit should be called by script on the attack hitbox
     // This is called on the player that gets hit's testAnimInput
-    public void AttackHit(int attackDamage, int attackStun, int blockStun, float hurtVelocity)
+    public void AttackHit(int attackDamage, int attackStun, int blockStun, Vector2 hurtVelocity,
+        bool KnockDownAttack, bool ReStandAttack)
     {
         Debug.Log(gameObject.name + " was hit!");
-        
-        if (anim.GetCurrentAnimatorStateInfo(0).IsName("Block") ||
-            anim.GetCurrentAnimatorStateInfo(0).IsName("BlockHurt") ||
-            anim.GetCurrentAnimatorStateInfo(0).IsName("CrouchBlock") ||
-            anim.GetCurrentAnimatorStateInfo(0).IsName("CrouchBlockHurt"))
+
+
+        if (!invulnerable)
         {
-            BlockHurt(blockStun, 0);
-        }
-        else
-        {
-            manager.currentHP[playerNum - 1] -= attackDamage;
-            if(manager.currentHP[playerNum - 1] <= 0 )
+            if (anim.GetCurrentAnimatorStateInfo(0).IsName("Block") ||
+                anim.GetCurrentAnimatorStateInfo(0).IsName("BlockHurt") ||
+                anim.GetCurrentAnimatorStateInfo(0).IsName("CrouchBlock") ||
+                anim.GetCurrentAnimatorStateInfo(0).IsName("CrouchBlockHurt"))
             {
-                PlayerDie();
+                BlockHurt(blockStun, 0);
             }
-            GetHurt(attackStun, hurtVelocity);
+            else
+            {
+                if (KnockDownAttack)
+                {
+                    knockDownLanded = false; // He's up there now!
+                    KnockedDownState = true;
+                }
+                if (ReStandAttack)
+                    KnockedDownState = false;
+                manager.currentHP[playerNum - 1] -= attackDamage;
+                if (manager.currentHP[playerNum - 1] <= 0)
+                {
+                    PlayerDie();
+                }
+                GetHurt(attackStun, hurtVelocity);
+            }
+        }
+    }
+
+    // Called by the throw collider, can be used as a way to do damage w/o stuns and velocity (i.e. poison)
+    public void AttackHit(int attackDamage)
+    {
+        manager.currentHP[playerNum - 1] -= attackDamage;
+        if (manager.currentHP[playerNum - 1] <= 0)
+        {
+            PlayerDie();
         }
     }
 
@@ -262,6 +447,10 @@ public class TestAnimInput : MonoBehaviour
 
     Vector2 RightVelocity()
     {
+        if(ThisPlayerBeingThrown)
+        {
+            return body.velocity;
+        }
         if (Inverted())
             return new Vector2(-backwardSpeed, body.velocity.y);
         else
@@ -269,6 +458,10 @@ public class TestAnimInput : MonoBehaviour
     }
     Vector2 LeftVelocity()
     {
+        if(ThisPlayerBeingThrown)
+        {
+            return body.velocity;
+        }
         if (Inverted())
             return new Vector2(-forwardSpeed, body.velocity.y);
         else
@@ -286,63 +479,73 @@ public class TestAnimInput : MonoBehaviour
         return new Vector2(body.velocity.x, jumpPower);
     }
 
-    IEnumerator Attack(string atName, int frames = 10)
+    IEnumerator Attack(string atName, int frames = 4)
     {
         anim.SetBool(atName, true);
-        yield return new WaitForSeconds(frames * Time.deltaTime); // 10 Frames
+        yield return new WaitForSeconds(frames * Time.deltaTime);
         anim.SetBool(atName, false);
     }
 
-    public void ThrowAttack()
+    public void ThrowAttack(GameObject thrownOpponent) // Called by the character that hit the throw's attack collider
     {
-        if (this.GetComponentInChildren<AttackCollider>().throwObject == null)
-        {
-            Debug.Log("Throw whiff!");    
-        }
-        else
-        {
-            Debug.Log("Throw hit " + this.GetComponentInChildren<AttackCollider>().throwObject.name);
-            ThrownObject = GetComponentInChildren<AttackCollider>().throwObject;
-            ThrownObject.transform.position = ThrowStart.transform.position;
-            StartCoroutine(Attack("ThrowSuccess"));
-        }
+        Debug.Log("Throw hit " + thrownOpponent.name);
+
+        // Saves it for ThrowHold, which is called by the animation, not the hitbox.
+        ThrownObject = thrownOpponent;
+        ThrownObject.transform.position = ThrowStart.transform.position;
+
+        // This is what causes the character to not go into throw whiff frames
+        StartCoroutine(Attack("ThrowSuccess"));
+
+        // Handles opponent processing
+        StartCoroutine(ThrownObject.GetComponent<TestAnimInput>().Attack("GettingThrown"));
+        ThrownObject.GetComponent<TestAnimInput>().doubleJumpReady = false; // Being put in air, feelsbad.
+
+        ThrownObject.GetComponent<Rigidbody2D>().simulated = false;
     }
 
-    public void ThrowHold()
+    public void ThrowHold() // Called by animation, not a script
     {
+        // Should NEVER happen
         if (ThrownObject == null)
         {
             Debug.Log("ThrowHold fails; no target");
         }
+        // Always happens, unless terrible bugs lol
+        // TODO: Add capability for backthrow
         else
         {
-            Debug.Log("ThrowHold: " + ThrownObject.name);
-            if(Inverted())
-            {
-                Debug.Log("Inversion, throw left");
+            ThrownObject.transform.position = ThrowEnd.transform.position;
+            ThrownObject.GetComponent<Rigidbody2D>().simulated = true;
+            ThrownObject.GetComponent<TestAnimInput>().KnockedDownState = true;
+            if (Inverted())
+            {                
+                ThrownObject.GetComponent<Rigidbody2D>().velocity = new Vector2(-ThrowVelocity.x, ThrowVelocityY);
+                if(input.GetButtonDown("Right"))
+                {
+                    ThrownObject.GetComponent<Rigidbody2D>().velocity = ThrowVelocity;
+                }
             }
             else
             {
-                Debug.Log("Throw Right");
-                /*
-                ThrownObject.transform.position
-                    = Vector3.MoveTowards(ThrownObject.transform.position,
-                    new Vector3(gameObject.GetComponent<Renderer>().bounds.max.x,
-                    gameObject.GetComponent<Renderer>().bounds.max.y),
-                    10 * Time.deltaTime);
-                    */
+                ThrownObject.GetComponent<Rigidbody2D>().velocity = ThrowVelocity;
+                if(input.GetButtonDown("Left"))
+                {
+                    ThrownObject.GetComponent<Rigidbody2D>().velocity = new Vector2(-ThrowVelocity.x, ThrowVelocityY);
+                }
             }
+            ThrownObject = null;
         }
     }
 
-    public void GetHurt(int attackStun, float hurtVelocity)
+    public void GetHurt(int attackStun, Vector2 hurtVelocity)
     {
         HurtingState = true;
         stunFrames = attackStun;
         if (Inverted()) // Inverted means +, because away from the center
-            body.velocity = new Vector2(hurtVelocity, body.velocity.y);
+            body.velocity = new Vector2(hurtVelocity.x, hurtVelocity.y);
         else
-            body.velocity = new Vector2(-hurtVelocity, body.velocity.y);
+            body.velocity = new Vector2(-hurtVelocity.x, hurtVelocity.y);
     }
     public void BlockHurt(int attackStun, float hurtVelocity)
     {
@@ -354,5 +557,11 @@ public class TestAnimInput : MonoBehaviour
             body.velocity = new Vector2(-hurtVelocity, body.velocity.y);
     }
 
-
+    public void ToggleContinuousCollisionDetection(float onOrOff)
+    {
+        if (onOrOff == 1)
+            body.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        else if (onOrOff == 0)
+            body.collisionDetectionMode = CollisionDetectionMode2D.Discrete;
+    }
 }

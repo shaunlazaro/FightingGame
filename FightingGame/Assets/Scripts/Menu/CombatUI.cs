@@ -12,6 +12,7 @@ public class CombatUI : MonoBehaviour {
     public GameObject player1SpawnPoint;
     public GameObject player2SpawnPoint;
     public GameObject ground;
+    public GameObject wall;
 
     public bool playerIsDead = false;
     public float victoryTime;
@@ -24,7 +25,7 @@ public class CombatUI : MonoBehaviour {
 
     void Start()
     {
-        manager.SpawnPlayers(player1SpawnPoint, player2SpawnPoint, ground);
+        manager.SpawnPlayers(player1SpawnPoint, player2SpawnPoint, ground, wall);
         playerIsDead = false;
     }
 

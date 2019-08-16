@@ -173,7 +173,7 @@ public class ControllerMappingMenuManager : MonoBehaviour {
         
         if(progress == 9)
         {
-            if (Manager.instance.input[playerNumber-1].GetButtonDown("HighPunch"))
+            if (Manager.instance.input[playerNumber-1].GetButtonDown("StrongAttack"))
             {
                 progress = 0;
                 playerNumber++;
@@ -181,7 +181,7 @@ public class ControllerMappingMenuManager : MonoBehaviour {
                     "\nPlease put down the player 1 controller";
                 Start();
             }
-            else if (Manager.instance.input[playerNumber-1].GetButtonDown("LowKick"))
+            else if (Manager.instance.input[playerNumber-1].GetButtonDown("Throw"))
             {
                 SceneManager.LoadScene("Title");
             }
